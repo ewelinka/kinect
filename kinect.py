@@ -42,7 +42,7 @@ class Kinect(Plugin):
                       label=_('hand x-axis'),
                       value_block=True,
                       prim_name='xKinect',
-                      help_string=_('returns the hand x-axis position as a number between -600 and 600'))
+                      help_string=_('returns the hand x-axis position as a number between -540 and 540'))
     self.parent.lc.def_prim('xKinect', 0, lambda self:
                          primitive_dictionary['xKinect']())
     special_block_colors['xKinect'] = COLOR_NOTPRESENT[:]
@@ -53,7 +53,7 @@ class Kinect(Plugin):
                       label=_('hand y-axis'), 
                       value_block=True,
                       prim_name='yKinect', 
-                      help_string=_('returns the hand y-axis position as a number between -600 and 600detects hand movements in y-axis'))
+                      help_string=_('returns the hand y-axis position as a number between -400 and 400'))
     self.parent.lc.def_prim('yKinect', 0, lambda self:
                          primitive_dictionary['yKinect']())
     special_block_colors['yKinect'] = COLOR_NOTPRESENT[:]
@@ -64,7 +64,7 @@ class Kinect(Plugin):
                       label=_('hand z-axis'),
                       value_block=True,
                       prim_name='zKinect',
-                      help_string=_('returns the hand z-axis position as a number between -600 and 600'))
+                      help_string=_('returns the hand z-axis position as a number between 420 and 1200'))
     self.parent.lc.def_prim('zKinect', 0, lambda self:
                          primitive_dictionary['zKinect']())
     special_block_colors['zKinect'] = COLOR_NOTPRESENT[:]
@@ -113,30 +113,32 @@ class Kinect(Plugin):
 
   def startTracking(self):
     print("Start tracking")
-    self.context = Context()
-    self.context.init()
+    try:
+      self.context = Context()
+      self.context.init()
 
-    self.depth_generator = DepthGenerator()
-    self.depth_generator.create(self.context)
-    #TODO check if parametrs ok
-    self.depth_generator.set_resolution_preset(RES_VGA)
-    self.depth_generator.fps = 30
+      self.depth_generator = DepthGenerator()
+      self.depth_generator.create(self.context)
+      #TODO check if parametrs ok
+      self.depth_generator.set_resolution_preset(RES_VGA)
+      self.depth_generator.fps = 30
 
-    self.gesture_generator = GestureGenerator()
-    self.gesture_generator.create(self.context)
-    self.gesture_generator.add_gesture('Wave')
+      self.gesture_generator = GestureGenerator()
+      self.gesture_generator.create(self.context)
+      self.gesture_generator.add_gesture('Wave')
 
-    self.hands_generator = HandsGenerator()
-    self.hands_generator.create(self.context)
+      self.hands_generator = HandsGenerator()
+      self.hands_generator.create(self.context)
 
-    # Register the callbacks
-    self.gesture_generator.register_gesture_cb(self.gesture_detected, self.gesture_progress)
-    self.hands_generator.register_hand_cb(self.create, self.update, self.destroy)  
-    # Start generating
-    self.context.start_generating_all()
+      self.gesture_generator.register_gesture_cb(self.gesture_detected, self.gesture_progress)
+      self.hands_generator.register_hand_cb(self.create, self.update, self.destroy)  
+      self.context.start_generating_all()
 
-    self.kinectThread=threading.Timer(1, self.track_poll)
-    self.kinectThread.start()
+      self.kinectThread=threading.Timer(1, self.track_poll)
+      self.kinectThread.start()
+    except:
+        print("Exception in start tracking")
+        self.pollrun = False
 
 
   def track_poll(self):
