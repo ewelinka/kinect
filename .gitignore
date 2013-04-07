@@ -1,0 +1,4 @@
+libXnV*
+libOpenNI.so
+*.pyc
+openni.so
